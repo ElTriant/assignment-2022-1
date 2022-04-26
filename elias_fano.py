@@ -41,7 +41,7 @@ lbn = math.floor(math.log2(m/n))
 print("l ", lbn)
 
 size_U = math.ceil((n * (9 - lbn))/8)
-U = bytearray(size_U)
+proto_U = bytearray(size_U)
 size_L = math.ceil((n*lbn)/8)
 L = bytearray(size_L)
 digit_U = 7
@@ -84,11 +84,17 @@ for i in range(0, n):
             digit_U = 7
 
     temp_2 = int(math.pow(2, digit_U))
+    proto_U[row_U] = (proto_U[row_U] | temp_2) % 256
     digit_U -= 1
     if digit_U == -1:
         row_U += 1
         digit_U = 7
-    U[row_U] = (U[row_U] | temp_2) % 256
+
+#fixing table U
+U = bytearray(row_U + 1)
+
+for i in range(0, row_U + 1):
+    U[i] = proto_U[i]
 
 #print table L
 print('L')
