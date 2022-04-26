@@ -44,11 +44,10 @@ size_U = math.ceil((n * (9 - lbn))/8)
 U = bytearray(size_U)
 size_L = math.ceil((n*lbn)/8)
 L = bytearray(size_L)
-digit_U = 8
-digit_L = 0
+digit_U = 7
+digit_L = 7
 row_U = 0
 row_L = 0
-b = bytes()
 num_left = 0
 num_right = 0
 prev_num = 0
@@ -62,38 +61,42 @@ for i in range(0, n):
     mask = int(math.pow(2, lbn) - 1)
     num_right = temp & mask
 
-    for y in range(1, lbn):
-        temp_2 = (int(math.pow(2, y - 1)) & num_right) * int(math.pow(2, digit_L))
-        L[row_L] = (L[row_L] + temp_2) % 256
-        digit_L += 1
-        if digit_L == 8:
-            digit_L = 0
+    for y in range(lbn, 0, -1):
+        temp_2 = int(math.pow(2, y - 1)) & num_right
+        if temp_2 > 1:
+            temp_2 = 1
+        temp_3 = temp_2 * int(math.pow(2, digit_L))
+        L[row_L] = (L[row_L] + temp_3) % 256
+        digit_L -= 1
+        if digit_L == -1:
+            digit_L = 7
             row_L += 1
 
     #creating table U
-    num_left = temp >> lbn
-    new_num = num_left - prev_num
+    num_left = int(temp / int(math.pow(2, lbn)))
+    new_num = int(num_left - prev_num)
     prev_num = num_left
 
-    if digit_U == 8:
-        row_U += 1
-        digit_U = 0
     for y in range(0, new_num):
-        temp_2 = int(math.pow(2, digit_U))
-        U[row_U] = (U[row_U] + temp_2) % 256
-        digit_U += 1
-        if digit_U == 8:
+        digit_U -= 1
+        if digit_U == -1:
             row_U += 1
-            digit_U = 0
-    digit_U += 1
+            digit_U = 7
+
+    temp_2 = int(math.pow(2, digit_U))
+    digit_U -= 1
+    if digit_U == -1:
+        row_U += 1
+        digit_U = 7
+    U[row_U] = (U[row_U] | temp_2) % 256
 
 #print table L
 print('L')
 for i in range(0, size_L):
     temp = L[i]
     str = ''
-    for y in range(1, 9):
-        mask = int(math.pow(2, 8 - y))
+    for y in range(8, 0, -1):
+        mask = int(math.pow(2, y - 1))
         temp_2 = temp & mask
         if temp_2 == 0:
             str = str + '0'
@@ -103,11 +106,12 @@ for i in range(0, size_L):
 
 #print table U
 print('U')
-for i in range(0, row_U):
+
+for i in range(0, row_U + 1):
     temp = U[i]
     str = ''
-    for y in range(1, 9):
-        mask = int(math.pow(2, 8 - y))
+    for y in range(0, 8):
+        mask = int(math.pow(2, 7 - y))
         temp_2 = temp & mask
         if temp_2 == 0:
             str = str + '0'
